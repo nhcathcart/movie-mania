@@ -1,3 +1,5 @@
+"use client"
+import { useEffect, useMemo, useState } from "react";
 import GuessModal from "./guess-modal";
 
 export interface Props {}
@@ -7,12 +9,23 @@ interface Row {
   actor_name: string;
   image_url: string;
 }
+interface Column {
+        id: number;
+        description: string;
+}
+type GridPosition = "0,0" | "0,1" | "0,2" | "1,0" | "1,1" | "1,2" | "2,0" | "2,1" | "2,2";
+interface GameState {
+        date: string;
+        grid: {
+            [key in GridPosition]: { url: string; guessedCorrectly: boolean } | null;
+        };
+}
 export default function MovieGrid({
   rowLabels,
   columnLabels,
 }: {
-  rowLabels: any[];
-  columnLabels: any[];
+  rowLabels: Row[];
+  columnLabels: Column[];
 }) {
   const votingCells = [];
   for (let i = 0; i < 3; i++) {
@@ -20,7 +33,43 @@ export default function MovieGrid({
       votingCells.push({ row: i, col: j });
     }
   }
-  return (
+  const defaultState = useMemo(() => ({
+    date: new Date().toISOString(),
+    grid: {
+      "0,0": null,
+      "0,1": null,
+      "0,2": null,
+      "1,0": null,
+      "1,1": null,
+      "1,2": null,
+      "2,0": null,
+      "2,1": null,
+      "2,2": null,
+    },
+  }), []);
+
+  const [gameState, setGameState] = useState<GameState>(defaultState);
+
+  useEffect(() => {
+    const stateFromStorage = localStorage.getItem("gameState");
+    if (stateFromStorage) {
+      const storedState = JSON.parse(stateFromStorage);
+      const storedDate = new Date(storedState.date);
+      const today1am = new Date();
+      today1am.setHours(1, 0, 0, 0); // set time to 1:00:00
+
+      if (storedDate >= today1am) {
+        setGameState(storedState);
+      } else {
+        localStorage.setItem("gameState", JSON.stringify(defaultState));
+      }
+    } else {
+      localStorage.setItem("gameState", JSON.stringify(defaultState));
+    }
+  }, [defaultState]);
+
+  
+ return (
     <div className="h-screen w-full flex justify-center items-center px-12 py-24">
       {/* Create a grid with additional rows and columns for labels */}
       <div className="grid grid-cols-4 grid-rows-7 transform -translate-x-[12.5%] min-h-full gap-1">
@@ -62,10 +111,16 @@ export default function MovieGrid({
               <div
                 key={`voting-cell-${index}`}
                 className={`col-start-${cell.col + 1} row-start-${
-                  cell.row +1
-                } items-center bg-gray-100`}
+                  cell.row + 1
+                } items-center `}
               >
-                <GuessModal />
+                <GuessModal
+                  delay={index * 0.2}
+                  gridRow={cell.row}
+                  gridColumn={cell.col}
+                  actorName={rowLabels[cell.row].actor_name}
+                  validator={columnLabels[cell.col].description}
+                />
               </div>
             );
           })}

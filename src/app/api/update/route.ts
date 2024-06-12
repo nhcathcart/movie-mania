@@ -227,3 +227,24 @@ export function generateValidMoviesGrid(actors: any, selectedValidators: {label:
   }
   return validMoviesGrid;
 }
+
+// export function generateValidMoviesGrid(actors: any) {
+//   let selectedValidators;
+//   let validMoviesGrid;
+
+//   do {
+//     selectedValidators = generateSelectedValidators();
+
+//     validMoviesGrid = new Array(3);
+//     for (let i = 0; i < 3; i++) {
+//       validMoviesGrid[i] = new Array(3);
+//       for (let j = 0; j < 3; j++) {
+//         validMoviesGrid[i][j] = actors[i].movies.filter((movie: any) =>
+//           selectedValidators[j].validator(movie)
+//         );
+//       }
+//     }
+//   } while (!validMoviesGrid.every((row: any) => row.every((cell: any) => cell.length > 0)));
+
+//   return { validMoviesGrid, selectedValidators };
+// }
