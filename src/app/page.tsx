@@ -1,5 +1,6 @@
 "use server";
 
+import MovieGrid from "@/components/movie-grid";
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -15,6 +16,7 @@ async function getGrid() {
   const cols = colRes.data;
   rows.sort((a, b) => a.row_index - b.row_index);
   cols.sort((a, b) => a.column_index - b.column_index);
+  console.log(rows, cols);
   return { rows, cols };
 }
 
@@ -22,13 +24,9 @@ export default async function Home() {
 
   const {rows, cols} = await getGrid();
 
-  return (
-    <div>{rows.map((row) => {
-      return (
-        <div key={row.id}>{row.actor_name}</div>
-      )
-    })}</div>
-  );
+  return(
+    <MovieGrid rowLabels={rows} columnLabels={cols} />
+  )
 }
 
 
