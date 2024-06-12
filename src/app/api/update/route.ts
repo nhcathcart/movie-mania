@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.API_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+import { createClient } from '@supabase/supabase-js'
+import { idText } from "typescript";
 
-const movieCategoryValidators: { label: string; validator: Function }[] = [
+// Create a single supabase client for interacting with your database
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+export const movieCategoryValidators: { label: string; validator: Function }[] = [
   {
     label: "Starts with 'The'",
     validator: (movie: any) => movie.title.startsWith("The "),
@@ -51,7 +58,7 @@ const movieCategoryValidators: { label: string; validator: Function }[] = [
   },
 ];
 
-const genreMap = {
+export const genreMap = {
   "12": "Adventure",
   "14": "Fantasy",
   "16": "Animation",
@@ -80,16 +87,61 @@ export async function POST() {
     actors = await getNewActorData();
   } catch (error) {
     console.error("Failed to get new actor data:", error);
-    return new Response("Failed to get new actor data", { status: 500 });
+    return new NextResponse("Failed to get new actor data", { status: 500 });
   }
-
+  if (actors instanceof Error) return new NextResponse(actors.message, { status: 500 });
   const selectedValidators = selectValidators(movieCategoryValidators);
   const validMoviesGrid = generateValidMoviesGrid(actors, selectedValidators);
-  console.log("validMoviesGrid", validMoviesGrid)
-  return new Response(JSON.stringify({ message: "Success", validMoviesGrid }), { status: 200 });
+  let rowLabelsToInsert = actors?.map((actor: any, index: number) => {
+    return {
+        row_index: index,
+        actor_name: actor.name,
+        image_url: actor.profile_path
+    }
+  })
+  const columnLabelsToInsert = selectedValidators.map((validator: any, index: number) => {
+    return {
+        column_index: index,
+        description: validator.label
+    }
+  })
+
+  await supabase.from('movies').delete().neq('id', -1)
+  await supabase.from('grid_movies').delete().neq('id', -1)
+  await supabase.from('row_labels').delete().neq('id', -1)
+  await supabase.from('column_labels').delete().neq('id', -1)
+  await supabase.from('row_labels').insert(rowLabelsToInsert)
+  await supabase.from('column_labels').insert(columnLabelsToInsert);
+  
+  for (let i=0; i<validMoviesGrid.length; i++) {
+    for (let j=0; j<validMoviesGrid[i].length; j++) {
+        
+        const movieArrayToInsert = validMoviesGrid[i][j].map((movie: any) => {
+            return {
+                id: movie.id,
+                title: movie.title,
+                image_url: movie.poster_path,
+                genre: movie.genre_ids
+            }
+        })
+      const {data, error} = await supabase.from('movies').insert(movieArrayToInsert)
+      const gridRes = await supabase.from('grid').select('*').eq('row', i).eq('column', j).limit(1)
+      .single()
+      
+      const gridMoviesToInsert = movieArrayToInsert.map((movie: any) => {
+        return {
+            grid_id: gridRes?.data.id,
+            movie_id: movie.id
+        }
+      })
+      const gridMovieRes = await supabase.from('grid_movies').insert(gridMoviesToInsert)
+      
+    }
+  }
+  return NextResponse.json({ status: 200 });
 }
 
-async function getNewActorData() {
+export async function getNewActorData() {
   const RESULTS_PER_PAGE = 20;
   const TOTAL_RESULTS = 200;
   const TOTAL_PAGES = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
@@ -106,51 +158,71 @@ async function getNewActorData() {
     console.error("Error fetching data from TMDB", error);
     return new Error("Error fetching data from TMDB");
   }
-  //choose three random actorrs
-  const selectedActors: any = {};
-  for (let i = 0; i < 3; i++) {
-    const randomIndex = Math.floor(Math.random() * allActors.length);
-    selectedActors[allActors[randomIndex].name] = {
-      id: allActors[randomIndex].id,
-      profile_path: allActors[randomIndex].profile_path,
-    };
+  //limit to actors with works in english
+  const englishActors: any[] = [];
+  for (const actor of allActors) {
+    try {
+      const url = `https://api.themoviedb.org/3/person/${actor.id}/movie_credits?api_key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const knownWorks = data.cast.concat(data.crew); // Combine cast and crew works
+      const hasEnglishWork = knownWorks.some((work: any) => work.original_language === 'en');
+      
+      if (hasEnglishWork) {
+        englishActors.push(actor);
+      }
+    } catch (error) {
+      console.error(`Error fetching known works for actor ${actor.id}:`, error);
+    }
   }
+  
+  //choose three random actorrs
+  const selectedActors: any[] = [];
+  for (let i = 0; i < 3; i++) {
+    const randomIndex = Math.floor(Math.random() * englishActors.length);
+    selectedActors.push({
+      name: englishActors[randomIndex].name,
+      id: englishActors[randomIndex].id,
+      profile_path: englishActors[randomIndex].profile_path,
+    });
+  }
+  
   //get movie list for selected actors
-  for (const actor in selectedActors) {
-    const url = `https://api.themoviedb.org/3/person/${selectedActors[actor].id}/movie_credits?api_key=${API_KEY}`;
+  for (const actor of selectedActors) {
+    const url = `https://api.themoviedb.org/3/person/${actor.id}/movie_credits?api_key=${API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
-    selectedActors[actor].movies = data.cast;
+    actor.movies = data.cast;
   }
-
+  
   return selectedActors;
 }
 
 
-function selectValidators(
+export function selectValidators(
   movieCategoryValidators: { label: string; validator: Function }[]
 ) {
-  const selectedValidators: Function[] = [];
+  const selectedValidators: {label: string; validator: Function; }[] = [];
   for (let i = 0; i < 3; i++) {
     const randomIndex = Math.floor(
       Math.random() * movieCategoryValidators.length
     );
-    selectedValidators.push(movieCategoryValidators[randomIndex].validator);
+    selectedValidators.push(movieCategoryValidators[randomIndex]);
   }
   return selectedValidators;
 }
 
-function generateValidMoviesGrid(actors: any, selectedValidators: Function[]) {
-  const actorArray = Object.keys(actors);
+export function generateValidMoviesGrid(actors: any, selectedValidators: {label: string; validator: Function}[]) {
+  
   const validMoviesGrid = new Array(3);
   for (let i = 0; i < 3; i++) {
     validMoviesGrid[i] = new Array(3);
     for (let j = 0; j < 3; j++) {
-      validMoviesGrid[i][j] = new Set(
-        actors[actorArray[i]].movies.filter((movie: any) =>
-          selectedValidators[j](movie)
+      validMoviesGrid[i][j] = 
+        actors[i].movies.filter((movie: any) =>
+          selectedValidators[j].validator(movie)
         )
-      );
+      ;
     }
   }
   return validMoviesGrid;
