@@ -16,7 +16,6 @@ async function getGrid() {
   const cols = colRes.data;
   rows.sort((a, b) => a.row_index - b.row_index);
   cols.sort((a, b) => a.column_index - b.column_index);
-  console.log(rows, cols);
   return { rows, cols };
 }
 
