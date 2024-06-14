@@ -10,6 +10,12 @@ const config: Config = {
     extend: {
       fontSize: {
         "2xs": "0.5625rem",
+      },
+      colors: {
+        slate: "#cbd5e1",
+        darkSlate: "#334155",
+        lightSlate: "#f8fafc",
+        text: "#020617"
       }
     },
   },

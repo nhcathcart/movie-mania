@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -17,16 +17,16 @@ export default function MobileMenu({ linkArray }: Props) {
       <div className="flex w-full items-center md:hidden">
         <button
           type="button"
-          className="rounded-md text-white"
+          className="rounded-md text-darkSlate"
           onClick={() => setOpen(true)}
           aria-label="Open mobile menu"
         >
           <Bars3Icon className="h-8 w-8" aria-hidden="true" />
         </button>
       </div>
-      <Transition.Root show={open} as={Fragment}>
+      <Transition show={open} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 z-40 lg:hidden" onClose={setOpen}>
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="transition-opacity ease-linear duration-300"
             enterFrom="opacity-0"
@@ -36,10 +36,10 @@ export default function MobileMenu({ linkArray }: Props) {
             leaveTo="opacity-0"
           >
             <div className="fixed inset-0 bg-background bg-opacity-10" />
-          </Transition.Child>
+          </TransitionChild>
 
           <div className="fixed inset-0 z-40">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="transition ease-in-out duration-300 transform"
               enterFrom="translate-x-full"
@@ -48,7 +48,7 @@ export default function MobileMenu({ linkArray }: Props) {
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel className="fixed inset-0 flex flex-col overflow-y-auto bg-background pb-12 shadow-xl">
+              <DialogPanel className="fixed inset-0 flex flex-col overflow-y-auto bg-slate pb-12 shadow-xl">
                 <div className="flex px-4 pb-2 pt-5">
                   <button
                     type="button"
@@ -72,11 +72,11 @@ export default function MobileMenu({ linkArray }: Props) {
                     </Link>
                   ))}
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition>
     </>
   );
 }

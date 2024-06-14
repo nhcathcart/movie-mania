@@ -8,6 +8,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function getGrid() {
+  // await fetch("http://localhost:3000/api/update", {method: "POST"})
   const rowRes = await supabase.from("row_labels").select("*");
   const colRes = await supabase.from("column_labels").select("*");
   if (rowRes.error || colRes.error)

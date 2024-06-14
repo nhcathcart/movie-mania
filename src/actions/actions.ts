@@ -31,3 +31,32 @@ export async function getSuggestions(queryString: string){
   const uniqueReturnArray = Array.from(new Set(returnArray));
   return uniqueReturnArray;;
 }
+
+
+export async function checkGuess(movieTitle: string, column: number, row: number) {
+  const { data, error } = await supabase
+    .from('movies')
+    .select(`
+      id,
+      image_url,
+      grid_movies!inner(
+        grid!inner(
+          column,
+          row
+        )
+      )
+    `)
+    .eq('title', movieTitle)
+    .eq('grid_movies.grid.column', column)
+    .eq('grid_movies.grid.row', row)
+    
+  if (error) {
+    console.error('Error checking association:', error)
+    return null
+  }
+
+  // If data is returned, it means the association exists
+  if (!data.length) return false
+  console.log("Data is ", data)
+  return data[0].image_url
+}
