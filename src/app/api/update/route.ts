@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const API_KEY = process.env.API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-import { createClient } from "@supabase/supabase-js";
-import { idText } from "typescript";
+
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -13,7 +13,7 @@ interface movieValidatorObj {
   label: string;
   validator: Function;
 }
-export const movieCategoryValidators: movieValidatorObj[] = [
+const movieCategoryValidators: movieValidatorObj[] = [
   {
     label: "Starts with 'The'",
     validator: (movie: any) => movie.title.startsWith("The "),
@@ -62,7 +62,7 @@ export const movieCategoryValidators: movieValidatorObj[] = [
   },
 ];
 
-export const genreMap = {
+const genreMap = {
   "12": "Adventure",
   "14": "Fantasy",
   "16": "Animation",
@@ -166,7 +166,7 @@ export async function POST() {
   return NextResponse.json({ status: 200 });
 }
 
-export async function getNewActorData() {
+async function getNewActorData() {
   const RESULTS_PER_PAGE = 20;
   const TOTAL_RESULTS = 200;
   const TOTAL_PAGES = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
@@ -225,7 +225,7 @@ export async function getNewActorData() {
   return selectedActors;
 }
 
-export function selectValidators(
+function selectValidators(
   movieCategoryValidators: { label: string; validator: Function }[]
 ) {
   const selectedValidators: { label: string; validator: Function }[] = [];
@@ -238,23 +238,8 @@ export function selectValidators(
   return selectedValidators;
 }
 
-// export function generateValidMoviesGrid(actors: any, selectedValidators: {label: string; validator: Function}[]) {
 
-//   const validMoviesGrid = new Array(3);
-//   for (let i = 0; i < 3; i++) {
-//     validMoviesGrid[i] = new Array(3);
-//     for (let j = 0; j < 3; j++) {
-//       validMoviesGrid[i][j] =
-//         actors[i].movies.filter((movie: any) =>
-//           selectedValidators[j].validator(movie)
-//         )
-//       ;
-//     }
-//   }
-//   return validMoviesGrid;
-// }
-
-export function generateValidMoviesGrid(actors: any) {
+ function generateValidMoviesGrid(actors: any) {
   const movieCount = actors.reduce((acc: number, actor: any) => {
     acc + actor.movies.length;
   });
