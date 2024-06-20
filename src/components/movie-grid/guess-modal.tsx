@@ -67,7 +67,7 @@ export default function GuessModal({
   return (
     <>
       <button
-        className="h-full w-full bg-lightSlate rounded shadow-md transform active:scale-95 hover:bg-darkSlate transition-colors duration-500"
+        className="h-full w-full bg-lightSlate rounded shadow-md transform active:scale-95 md:hover:bg-darkSlate transition-colors duration-500"
         onClick={() => setOpen(!open)}
       />
       <Transition show={open}>
