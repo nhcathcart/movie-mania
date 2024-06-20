@@ -149,7 +149,7 @@ export default function MovieGrid({
                 } items-center relative`}
                 initial={{ y: "200px", opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: index * 0.2 }}
+                transition={{ delay: index * 0.1, type: "spring", bounce: 0.38, ease: "easeIn", duration: 1}}
               >
                 {!gameState.grid[`${cell.row},${cell.col}`] ? (
                   <GuessModal

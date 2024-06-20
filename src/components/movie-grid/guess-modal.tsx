@@ -67,7 +67,7 @@ export default function GuessModal({
   return (
     <>
       <button
-        className="h-full w-full bg-lightSlate rounded shadow-md transform active:scale-95"
+        className="h-full w-full bg-lightSlate rounded shadow-md transform active:scale-95 hover:bg-darkSlate transition-colors duration-500"
         onClick={() => setOpen(!open)}
       />
       <Transition show={open}>
@@ -125,6 +125,7 @@ export default function GuessModal({
                             setGuess(e.target.value); // Update guess based on input change
                             setSelectedSuggestion(""); // Reset selected suggestion when the input changes
                           }}
+                          autoComplete="off"
                         />
                         {suggestions.length > 0 && (
                           <ComboboxOptions className="z-100 absolute w-full rounded top-full flex flex-col max-h-[200px] overflow-scroll divide-y-gray-100 mt-1 bg-white">
