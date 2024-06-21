@@ -20,6 +20,8 @@ export interface Props {
   actorName: string;
   validator: string;
   updateGameState: Function;
+  outOfGuesses: boolean;
+  setScoreModalOpen: Function;
 }
 export default function GuessModal({
   delay,
@@ -28,6 +30,8 @@ export default function GuessModal({
   actorName,
   validator,
   updateGameState,
+  outOfGuesses,
+  setScoreModalOpen,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [guess, setGuess] = useState("");
@@ -63,12 +67,15 @@ export default function GuessModal({
       alert("Please select a suggestion before submitting.");
     }
   };
-
+  const handleClick = () => {
+    if (outOfGuesses) setScoreModalOpen(true);
+    else setOpen(true);
+  }
   return (
     <>
       <button
         className="h-full w-full bg-lightSlate rounded shadow-md transform active:scale-95 md:hover:bg-darkSlate transition-colors duration-500"
-        onClick={() => setOpen(!open)}
+        onClick={() => handleClick()}
       />
       <Transition show={open}>
         <Dialog className="relative z-10" onClose={setOpen}>

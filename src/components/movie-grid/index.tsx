@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import GuessModal from "./guess-modal";
+import ScoreModal from "./score-modal";
+import { useGameState } from "@/hooks/use-game-state";
 
 interface Row {
   id: number;
@@ -13,7 +15,7 @@ interface Column {
   description: string;
 }
 
-interface GameState {
+export interface GameState {
   date: string;
   guessesRemaining: number;
   grid: {
@@ -33,78 +35,13 @@ export default function MovieGrid({
       votingCells.push({ row: i, col: j });
     }
   }
-  const defaultState = useMemo(
-    () => ({
-      date: new Date().toISOString(),
-      guessesRemaining: 9,
-      grid: {
-        "0,0": null,
-        "0,1": null,
-        "0,2": null,
-        "1,0": null,
-        "1,1": null,
-        "1,2": null,
-        "2,0": null,
-        "2,1": null,
-        "2,2": null,
-      },
-    }),
-    []
-  );
-
-  const [gameState, setGameState] = useState<GameState>(defaultState);
-
-  useEffect(() => {
-    const stateFromStorage = localStorage.getItem("gameState");
-    if (stateFromStorage) {
-      const storedState = JSON.parse(stateFromStorage);
-      const storedDate = new Date(storedState.date);
-      const today1am = new Date();
-      today1am.setHours(1, 0, 0, 0); // set time to 1:00:00
-
-      if (storedDate >= today1am) {
-        setGameState(storedState);
-      } else {
-        localStorage.setItem("gameState", JSON.stringify(defaultState));
-      }
-    } else {
-      localStorage.setItem("gameState", JSON.stringify(defaultState));
-    }
-  }, [defaultState]);
-
-  function updateGameState(
-    row: number,
-    col: number,
-    url: string,
-    correctGuess: boolean
-  ) {
-    if (correctGuess) {
-      console.log("url is: ", url);
-      const newState = {
-        ...gameState,
-        grid: {
-          ...gameState.grid,
-          [`${row},${col}`]: {
-            url: url,
-            guessedCorrectly: true,
-          },
-        },
-        guessesRemaining: gameState.guessesRemaining - 1,
-      };
-      setGameState(newState);
-      localStorage.setItem("gameState", JSON.stringify(newState));
-    } else {
-      const newState = {
-        ...gameState,
-        guessesRemaining: gameState.guessesRemaining - 1,
-      };
-      setGameState(newState);
-      localStorage.setItem("gameState", JSON.stringify(newState));
-    }
-  }
-
+  
+  const { gameState, updateGameState, scoreModalOpen, setScoreModalOpen } = useGameState();
+  console.log("game state in movie grid", gameState)
   return (
     <div className="w-full h-[calc(100vh-240px)] md:h-[calc(100vh-80px)] md:pb-12 flex justify-center items-center ">
+      {/*Score modal that shows when we are out of guesses*/}
+      <ScoreModal open={scoreModalOpen} setOpen={setScoreModalOpen} gameState={gameState}/>
       {/* Create a grid with additional rows and columns for labels */}
       <div className="grid grid-cols-4 grid-rows-7 transform -translate-x-[9.5%] md:-translate-x-[12.5%] h-[450px] md:h-full aspect-[2/3] gap-1">
         {/* Empty top-left cell */}
@@ -159,6 +96,8 @@ export default function MovieGrid({
                     actorName={rowLabels[cell.row].actor_name}
                     validator={columnLabels[cell.col].description}
                     updateGameState={updateGameState}
+                    outOfGuesses={gameState.guessesRemaining === 0}
+                    setScoreModalOpen={setScoreModalOpen}
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
