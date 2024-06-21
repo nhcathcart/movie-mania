@@ -39,7 +39,7 @@ export default function MovieGrid({
 
   const { gameState, updateGameState, scoreModalOpen, setScoreModalOpen } =
     useGameState();
-  console.log("game state in movie grid", gameState);
+    
   return (
     <div className="flex flex-col h-fit">
       <div className="w-full h-[calc(100vh-240px)] md:h-[calc(100vh-80px)] md:pb-12 flex flex-col justify-center items-center ">
