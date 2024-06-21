@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import GuessModal from "./guess-modal";
 import ScoreModal from "./score-modal";
 import { useGameState } from "@/hooks/use-game-state";
+import ActorModal from "./actor-modal";
 
 interface Row {
   id: number;
@@ -67,11 +68,11 @@ export default function MovieGrid({
           return (
             <div
               key={row.id}
-              className={`flex justify-center items-center bg-transparent col-start-1 row-start-${
+              className={`relative flex justify-center items-center bg-transparent col-start-1 row-start-${
                 index * 2 + 2
               } p-1 items-center justify-center text-center text-2xs row-span-2`}
             >
-              {row.actor_name}
+              <ActorModal actor_name={row.actor_name} image_url={`https://image.tmdb.org/t/p/original${row.image_url}`}/>
             </div>
           );
         })}

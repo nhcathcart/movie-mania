@@ -1,9 +1,8 @@
 "use client";
-import { Fragment, useEffect, useRef, useState } from "react";
+
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   Transition,
   TransitionChild,
 } from "@headlessui/react";
@@ -20,32 +19,52 @@ function classNames(...classes: string[]) {
 }
 
 export default function ScoreModal({ open, setOpen, gameState }: Props) {
-  const handleCopy = async () => {
-    const todayDate = new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-    });
-    try {
-      const text =
-        `movie-mania - ${todayDate} \n\n${
-          Object.values(gameState.grid).filter((obj) => obj?.guessedCorrectly)
-            .length
-        }/9 correct\n` +
-        Object.values(gameState.grid).reduce((acc, obj, index) => {
-          // Append a check mark for correct guesses, an X for incorrect ones
-          acc += obj?.guessedCorrectly ? "✅ " : "❌ ";
-          // Add a line break after every third item to format it as a 3x3 grid
-          if ((index + 1) % 3 === 0) acc += "\n";
-
-          return acc;
-        }, "\n");
-      await navigator.clipboard.writeText(text);
-      console.log("Character copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
-  };
+    const handleCopy = async () => {
+        const todayDate = new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        });
+        const text =
+          `movie-mania - ${todayDate} \n\n${
+            Object.values(gameState.grid).filter((obj) => obj?.guessedCorrectly).length
+          }/9 correct\n` +
+          Object.values(gameState.grid).reduce((acc, obj, index) => {
+            acc += obj?.guessedCorrectly ? "✅ " : "❌ ";
+            if ((index + 1) % 3 === 0) acc += "\n";
+            return acc;
+          }, "\n");
+      
+        if (!navigator.clipboard) {
+          // Fallback for browsers without clipboard API support
+          copyToClipboardFallback(text);
+          alert("Results copied to clipboard (fallback)!");
+          return;
+        }
+      
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("Results copied to clipboard!");
+        } catch (err) {
+          // Fallback for when clipboard API fails (e.g., due to permissions issues)
+          copyToClipboardFallback(text);
+          alert("Results copied to clipboard (fallback)!");
+        }
+      };
+      
+      const copyToClipboardFallback = (text: string) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          console.error("Fallback: Oops, unable to copy", err);
+        }
+        document.body.removeChild(textArea);
+      };
   return (
     <>
       <Transition show={open}>
@@ -71,13 +90,14 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="relative transform overflow-visible rounded bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm p-6 min-h-full">
-                  <div className="w-full flex justify-center">{`${
+                <DialogPanel className="flex flex-col items-center gap-2 relative transform overflow-visible rounded bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm p-6 min-h-full">
+                  <h3 className="text-4xl">Game Over!</h3>
+                  <div className="w-full flex justify-center text-2xl">{`You got ${
                     Object.values(gameState.grid).filter(
                       (obj) => obj?.guessedCorrectly
                     ).length
-                  }/9`}</div>
-                  <div className="grid grid-cols-3 grid-rows-3 h-36 gap-2">
+                  }/9 correct`}</div>
+                  <div className="grid grid-cols-3 grid-rows-3 w-2/3 gap-2 aspect-[2/3]">
                     {Array.from({ length: 3 }, (_, i) => i).map((row) =>
                       Array.from({ length: 3 }, (_, j) => j).map((col) => {
                         const cellKey = `${row},${col}`;
@@ -86,7 +106,8 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
                         const cellClass = classNames(
                           `col-start-${col + 1}`,
                           `row-start-${row + 1}`,
-                          `${guessedCorrectly ? "bg-green-500" : "bg-red-500"}`
+                          `${guessedCorrectly ? "bg-green-500" : "bg-red-500"}`,
+                          `rounded`,
                         );
 
                         return (
@@ -98,10 +119,10 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
                       })
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full">
                     <button
                       onClick={() => handleCopy()}
-                      className=" mt-2 inline-flex w-full cursor-pointer justify-center rounded-md bg-darkSlate px-3 py-2 text-sm font-semibold text-white shadow-sm md:hover:bg-slate focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      className="active:scale-95 mt-2 inline-flex w-full cursor-pointer justify-center rounded-md bg-darkSlate px-3 py-2 text-sm font-semibold text-white shadow-sm md:hover:bg-slate focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       Copy Results
                     </button>
