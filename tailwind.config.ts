@@ -18,6 +18,7 @@ const config: Config = {
       colors: {
         slate: "#cbd5e1",
         darkSlate: "#334155",
+        mediumSlate: "#5E6C84",
         lightSlate: "#f8fafc",
         text: "#020617"
       }

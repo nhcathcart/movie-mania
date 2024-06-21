@@ -74,13 +74,12 @@ export default function GuessModal({
   };
 
   const shakeAnimation = {
-    x: [-10, 10, -8, 8, -6, 6, -4, 4, -2, 2, 0],
+    x: [-120, 120, -75, 75, -25, 25 -16, 16, -12, 12, 0],
     transition: { 
-      duration: 0.6, 
-      ease: [0.25, 1, 0.5, 1], 
+      duration: 0.9, // Slightly longer duration for more pronounced effect
       type: "spring", 
-      stiffness: 300,
-      damping: 10
+      stiffness: 100, // Increased stiffness for more "snappy" movement
+      damping: 4 // Reduced damping for more oscillation
     },
   };
   const handleClick = () => {
@@ -180,7 +179,7 @@ export default function GuessModal({
                     </div>
                     <button
                       type="submit"
-                      className=" mt-2 inline-flex w-full cursor-pointer justify-center rounded-md bg-darkSlate px-3 py-2 text-sm font-semibold text-white shadow-sm md:hover:bg-slate focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      className=" mt-2 inline-flex w-full cursor-pointer justify-center rounded-md bg-darkSlate px-3 py-2 text-sm font-semibold text-white shadow-sm md:hover:bg-mediumSlate focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       Guess
                     </button>
