@@ -12,7 +12,7 @@ import {
   ComboboxOption,
 } from "@headlessui/react";
 import { checkGuess, getSuggestions } from "@/actions/actions";
-
+import { useAnimate } from "framer-motion";
 export interface Props {
   delay: number;
   gridRow: number;
@@ -37,7 +37,7 @@ export default function GuessModal({
   const [guess, setGuess] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedSuggestion, setSelectedSuggestion] = useState<string>("");
-
+  const [scope, animate] = useAnimate();
   function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(" ");
   }
@@ -59,18 +59,34 @@ export default function GuessModal({
     e.preventDefault();
     if (selectedSuggestion) {
       const res = await checkGuess(selectedSuggestion, gridColumn, gridRow);
-      console.log("res is", res);
-      if (res) updateGameState(gridRow, gridColumn, res, true);
-      else updateGameState(gridRow, gridColumn, "", false);
-      setOpen(false);
+
+      if (res) {
+        updateGameState(gridRow, gridColumn, res, true);
+        setOpen(false);
+      } else {
+        updateGameState(gridRow, gridColumn, "", false);
+        animate(scope.current, shakeAnimation);
+        setGuess("")
+      }
     } else {
       alert("Please select a suggestion before submitting.");
     }
   };
+
+  const shakeAnimation = {
+    x: [-10, 10, -8, 8, -6, 6, -4, 4, -2, 2, 0],
+    transition: { 
+      duration: 0.6, 
+      ease: [0.25, 1, 0.5, 1], 
+      type: "spring", 
+      stiffness: 300,
+      damping: 10
+    },
+  };
   const handleClick = () => {
     if (outOfGuesses) setScoreModalOpen(true);
     else setOpen(true);
-  }
+  };
   return (
     <>
       <button
@@ -100,7 +116,10 @@ export default function GuessModal({
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="relative transform overflow-visible rounded bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm p-6 min-h-full">
+                <DialogPanel
+                  ref={scope}
+                  className="relative transform overflow-visible rounded bg-slate text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm p-6 min-h-full"
+                >
                   <div>
                     <div className="mt-3 text-center sm:mt-5">
                       <DialogTitle
@@ -121,8 +140,8 @@ export default function GuessModal({
                       <Combobox
                         value={selectedSuggestion}
                         onChange={(suggestion) => {
-                          setGuess(suggestion ?? ''); // Update the input field to display the selected suggestion
-                          setSelectedSuggestion(suggestion ?? ''); // Update the selected suggestion state
+                          setGuess(suggestion ?? ""); // Update the input field to display the selected suggestion
+                          setSelectedSuggestion(suggestion ?? ""); // Update the selected suggestion state
                         }}
                       >
                         <ComboboxInput
@@ -148,7 +167,9 @@ export default function GuessModal({
                                       : "text-gray-900"
                                   )
                                 }
-                                onClick={() => handleSuggestionClick(suggestion)}
+                                onClick={() =>
+                                  handleSuggestionClick(suggestion)
+                                }
                               >
                                 {suggestion}
                               </ComboboxOption>

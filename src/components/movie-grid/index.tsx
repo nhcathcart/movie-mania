@@ -56,7 +56,7 @@ export default function MovieGrid({
               key={col.id}
               className={`flex w-full  justify-center items-end bg-transparent col-start-${
                 index + 2
-              } row-start-1 p-1 pb-3 items-end justify-center text-center text-[9px]`}
+              } row-start-1 p-1 pb-3 items-end justify-center text-center text-[10px] lg:text-[14px]`}
             >
               {col.description}
             </div>
@@ -70,14 +70,14 @@ export default function MovieGrid({
               key={row.id}
               className={`relative flex justify-center items-center bg-transparent col-start-1 row-start-${
                 index * 2 + 2
-              } p-1 items-center justify-center text-center text-2xs row-span-2`}
+              } p-1 items-center justify-center text-center row-span-2 text-[10px] lg:text-[14px]`}
             >
               <ActorModal actor_name={row.actor_name} image_url={`https://image.tmdb.org/t/p/original${row.image_url}`}/>
             </div>
           );
         })}
         {/* Voting cells */}
-        <div className="grid row-start-2 row-end-8 col-start-2 col-end-5 grid-rows-3 grid-cols-3 gap-2">
+        <div className="grid row-start-2 row-end-8 col-start-2 col-end-5 grid-rows-3 grid-cols-3 gap-2 lg:gap-4">
           {votingCells.map((cell, index) => {
             return (
               <motion.div
