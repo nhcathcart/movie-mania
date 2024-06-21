@@ -31,7 +31,7 @@ export default function Navbar() {
             </Link>
           );
         })}
-        <MobileMenu linkArray={linkArray} />
+        {/* <MobileMenu linkArray={linkArray} /> */}
       </div>
     </nav>
   );
