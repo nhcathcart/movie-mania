@@ -30,7 +30,7 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
             Object.values(gameState.grid).filter((obj) => obj?.guessedCorrectly).length
           }/9 correct\n` +
           Object.values(gameState.grid).reduce((acc, obj, index) => {
-            acc += obj?.guessedCorrectly ? "✅ " : "❌ ";
+            acc += obj?.guessedCorrectly ? "🟢" : "⚪️";
             if ((index + 1) % 3 === 0) acc += "\n";
             return acc;
           }, "\n");
@@ -90,14 +90,14 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="flex flex-col items-center gap-2 relative transform overflow-visible rounded bg-slate text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm p-6 min-h-full">
+                <DialogPanel className="flex flex-col items-center gap-2 relative transform overflow-visible rounded bg-slate text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-sm px-6 pt-6 pb-5 min-h-full">
                   <h3 className="text-4xl font-newZealand text-[400]">Game Over!</h3>
-                  <div className="w-full flex justify-center text-lg mt-4">{`You got ${
+                  <div className="w-full flex justify-center text-md mt-4">{`You got ${
                     Object.values(gameState.grid).filter(
                       (obj) => obj?.guessedCorrectly
                     ).length
                   }/9 correct`}</div>
-                  <div className="grid grid-cols-3 grid-rows-3 w-2/3 gap-2 aspect-[2/3] mt-2">
+                  <div className="grid grid-cols-3 grid-rows-3 w-[55%] gap-2 aspect-[2/3] my-2">
                     {Array.from({ length: 3 }, (_, i) => i).map((row) =>
                       Array.from({ length: 3 }, (_, j) => j).map((col) => {
                         const cellKey = `${row},${col}`;
@@ -119,7 +119,7 @@ export default function ScoreModal({ open, setOpen, gameState }: Props) {
                       })
                     )}
                   </div>
-                  <div className="flex gap-2 w-full mt-4">
+                  <div className="flex gap-2 w-full">
                     <button
                       onClick={() => handleCopy()}
                       className="active:scale-95 mt-2 inline-flex w-full cursor-pointer justify-center rounded-md bg-darkSlate px-3 py-2 text-sm font-semibold text-white shadow-sm md:hover:bg-mediumSlate focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
