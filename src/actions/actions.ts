@@ -57,6 +57,6 @@ export async function checkGuess(movieTitle: string, column: number, row: number
 
   // If data is returned, it means the association exists
   if (!data.length) return false
-  console.log("Data is ", data)
+
   return data[0].image_url
 }

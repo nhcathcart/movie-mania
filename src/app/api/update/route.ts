@@ -149,8 +149,7 @@ export async function POST() {
         .eq("column", j)
         .limit(1)
         .single();
-      console.log("gridData for this iteration: ", gridRes?.data.id)
-      console.log("amount to insert: ", movieArrayToInsert.length)
+
       const gridMoviesToInsert = movieArrayToInsert.map((movie: any) => {
         return {
           grid_id: gridRes?.data.id,
@@ -161,7 +160,7 @@ export async function POST() {
       const gridMovieRes = await supabase
         .from("grid_movies")
         .insert(gridMoviesToInsert);
-      console.log("gridMovieRes insertions", gridMovieRes);
+
     }
   }
   revalidatePath("/")
