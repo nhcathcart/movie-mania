@@ -11,6 +11,10 @@ const config: Config = {
       fontSize: {
         "2xs": "0.5625rem",
       },
+      fontFamily: {
+        oswald: ['var(--font-oswald)'],
+        newZealand: ['var(--font-newZealand)'],
+      },
       colors: {
         slate: "#cbd5e1",
         darkSlate: "#334155",
