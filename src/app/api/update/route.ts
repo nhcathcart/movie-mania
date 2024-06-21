@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 const API_KEY = process.env.API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -163,6 +164,7 @@ export async function POST() {
       console.log("gridMovieRes insertions", gridMovieRes);
     }
   }
+  revalidatePath("/")
   return NextResponse.json({ status: 200 });
 }
 
